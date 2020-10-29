@@ -8,8 +8,19 @@ export default createGlobalStyle`
     box-sizing: border-box;
   }
 
+
+  :root {
+    --black: #121214;
+    --gray: #8f8f91;
+    --grayBg: #202024;
+    --white: #fff;
+    --primary: #0086ff;
+    --secondary: #961ed9;
+    --red: #da1869;
+  }
+
   body {
-    background: #f2f2f2;
+    background: var(--black);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
