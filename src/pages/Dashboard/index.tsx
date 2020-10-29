@@ -1,13 +1,16 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { FiMinus } from 'react-icons/fi';
-
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
+import ReactDatePicker from 'react-datepicker';
+import { format, formatISO, parseISO } from 'date-fns';
 
-import { LOCAL_STORAGE_KEY } from '../../constants/LogsConstants';
-
+import {
+  LOCAL_STORAGE_KEY,
+  WORKOUT_TYPES,
+} from '../../constants/LogsConstants';
 import {
   Container,
   ContainerForm,
@@ -19,11 +22,12 @@ import {
 
 interface WorkoutLog {
   id?: string;
-  timeSpend: number | string;
+  timeSpend: number;
   type: string;
-  day: string;
+  day: Date | string;
 }
 
+// Validation schema
 const LogSchema = yup.object().shape({
   timeSpend: yup
     .number()
@@ -32,9 +36,13 @@ const LogSchema = yup.object().shape({
     .required('Is required')
     .max(8, 'Can´t be greater than 8'),
   type: yup.string().required('Is required'),
-  day: yup.string().required('Is requerid'),
+  day: yup.date().typeError('Must be a valid date').required('Is requerid'),
 });
 
+/**
+ * @author Eduardo Reichert <edrdesigner@gmail.com>
+ * @since 0.1.0 - 29/10/2020
+ */
 const Dashboard: React.FC = () => {
   const [logs, setLogs] = useState<WorkoutLog[]>(() => {
     const storageWorkouts = localStorage.getItem(`${LOCAL_STORAGE_KEY}:logs`);
@@ -50,13 +58,22 @@ const Dashboard: React.FC = () => {
     localStorage.setItem(`${LOCAL_STORAGE_KEY}:logs`, JSON.stringify(logs));
   }, [logs]);
 
-  const { register, handleSubmit, errors, reset } = useForm<WorkoutLog>({
+  const { register, handleSubmit, errors, reset, control } = useForm<
+    WorkoutLog
+  >({
     resolver: yupResolver(LogSchema),
   });
 
   const onAddLog = useCallback(
     (data: WorkoutLog) => {
-      setLogs(prevLogs => [...prevLogs, { ...data, id: uuidv4() }]);
+      setLogs(prevLogs => [
+        ...prevLogs,
+        {
+          ...data,
+          day: formatISO(data.day as Date),
+          id: uuidv4(),
+        },
+      ]);
       reset();
     },
     [reset],
@@ -73,8 +90,7 @@ const Dashboard: React.FC = () => {
   const totalHours = useMemo(() => {
     if (logs.length > 0) {
       return logs.reduce((acumulador, log) => {
-        const value = parseFloat(log.timeSpend.toString());
-        const total = acumulador + value;
+        const total = acumulador + log.timeSpend;
         return total;
       }, 0);
     }
@@ -84,7 +100,12 @@ const Dashboard: React.FC = () => {
 
   return (
     <Container>
-      <h1>Workout Log</h1>
+      <h1>
+        WorkoutLog{' '}
+        <span role="img" aria-label="strong">
+          💪
+        </span>
+      </h1>
       <ContainerForm>
         <h3>Insert an item</h3>
         <Form onSubmit={handleSubmit(onAddLog)}>
@@ -100,15 +121,27 @@ const Dashboard: React.FC = () => {
           <div>
             <select name="type" ref={register}>
               <option value="">Select type</option>
-              <option value="Run">Run</option>
-              <option value="Swimming">Swimming</option>
-              <option value="Cycling">Cycling</option>
-              <option value="Strength">Strength</option>
+              {WORKOUT_TYPES.map(type => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
             </select>
             {errors.type && <p>{errors.type.message}</p>}
           </div>
           <div>
-            <input name="day" type="text" placeholder="Day" ref={register} />
+            <Controller
+              control={control}
+              name="day"
+              defaultValue={new Date()}
+              render={({ onChange, onBlur, value }) => (
+                <ReactDatePicker
+                  onChange={val => onChange(val)}
+                  onBlur={onBlur}
+                  selected={value}
+                />
+              )}
+            />
             {errors.day && <p>{errors.day.message}</p>}
           </div>
           <button type="submit">Add</button>
@@ -129,7 +162,7 @@ const Dashboard: React.FC = () => {
               <tr key={log.id}>
                 <td>{log.timeSpend}h</td>
                 <td>{log.type}</td>
-                <td>{log.day}</td>
+                <td>{format(parseISO(log.day.toString()), 'MM/dd/yyyy')}</td>
                 <td width="25">
                   <button
                     className="delete"
@@ -146,7 +179,7 @@ const Dashboard: React.FC = () => {
       ) : (
         <EmptyMessage>
           <h3>Oooh :(</h3>
-          <span>You don´t have any logs registred</span>
+          <span>You don´t have any logs registred.</span>
         </EmptyMessage>
       )}
 

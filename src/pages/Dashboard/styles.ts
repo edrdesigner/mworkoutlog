@@ -69,7 +69,7 @@ export const Form = styled.form`
     }
   }
 
-  button {
+  > button {
     background: var(--primary);
     border: 0;
     padding: 16px;
@@ -142,13 +142,17 @@ export const ContainerGrid = styled.table`
       }
 
       &.delete {
-        background: var(--red);
+        background: var(--black);
+
+        svg {
+          color: var(--gray);
+        }
 
         &:hover {
-          background: var(--white);
+          background: var(--red);
 
           svg {
-            color: var(--black);
+            color: var(--white);
           }
         }
       }

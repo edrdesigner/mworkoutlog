@@ -1,4 +1,5 @@
 import { createGlobalStyle } from 'styled-components';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default createGlobalStyle`
   * {
@@ -7,7 +8,6 @@ export default createGlobalStyle`
     outline: 0;
     box-sizing: border-box;
   }
-
 
   :root {
     --black: #121214;
