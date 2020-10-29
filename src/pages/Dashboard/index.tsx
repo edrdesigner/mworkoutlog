@@ -112,6 +112,7 @@ const Dashboard: React.FC = () => {
           <div>
             <input
               name="timeSpend"
+              data-testid="timeSpend"
               type="text"
               placeholder="Time spend"
               ref={register}
@@ -119,7 +120,7 @@ const Dashboard: React.FC = () => {
             {errors.timeSpend && <p>{errors.timeSpend.message}</p>}
           </div>
           <div>
-            <select name="type" ref={register}>
+            <select data-testid="type" name="type" ref={register}>
               <option value="">Select type</option>
               {WORKOUT_TYPES.map(type => (
                 <option key={type} value={type}>
@@ -136,7 +137,8 @@ const Dashboard: React.FC = () => {
               defaultValue={new Date()}
               render={({ onChange, onBlur, value }) => (
                 <ReactDatePicker
-                  onChange={val => onChange(val)}
+                  id="day"
+                  onChange={onChange}
                   onBlur={onBlur}
                   selected={value}
                 />
@@ -148,7 +150,7 @@ const Dashboard: React.FC = () => {
         </Form>
       </ContainerForm>
       {logs.length > 0 ? (
-        <ContainerGrid>
+        <ContainerGrid data-testid="grid">
           <thead>
             <tr>
               <th>Time</th>
@@ -165,6 +167,7 @@ const Dashboard: React.FC = () => {
                 <td>{format(parseISO(log.day.toString()), 'MM/dd/yyyy')}</td>
                 <td width="25">
                   <button
+                    data-testid="delete"
                     className="delete"
                     onClick={() => handleDeleteLog(log)}
                     type="button"
