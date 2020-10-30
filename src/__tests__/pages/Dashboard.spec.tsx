@@ -5,6 +5,7 @@ import {
   screen,
   cleanup,
   waitFor,
+  queryByAttribute,
 } from '@testing-library/react';
 import Dashboard from '../../pages/Dashboard';
 
@@ -19,23 +20,26 @@ describe('Dashboard Page', () => {
 
   it('should not be able to add workout log with invalid attributes', async () => {
     const mockedUUID = jest.fn();
-
     jest.mock('uuid', () => {
       return {
         v4: () => mockedUUID,
       };
     });
 
-    const { getByTestId, getByText } = render(<Dashboard />);
+    const getById = queryByAttribute.bind(null, 'id');
 
-    const timeSpendField = getByTestId('timeSpend');
-    const typeField = getByTestId('type');
+    const { getByText, container } = render(<Dashboard />);
+
+    const dayField = getById(container, 'day');
     const buttonAdd = getByText('Add');
-    fireEvent.change(timeSpendField, { target: { value: 0 } });
-    fireEvent.change(typeField, { target: { value: '' } });
+
+    if (dayField) {
+      fireEvent.change(dayField, { target: { value: null } });
+    }
 
     fireEvent.click(buttonAdd);
 
+    expect(await screen.findAllByRole('alert')).toHaveLength(3);
     expect(mockedUUID).not.toBeCalled();
   });
 

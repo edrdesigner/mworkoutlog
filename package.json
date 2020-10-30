@@ -40,7 +40,8 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/pages/**/*.tsx"
+      "src/pages/**/*.tsx",
+      "src/components/**/*.tsx"
     ]
   },
   "browserslist": {

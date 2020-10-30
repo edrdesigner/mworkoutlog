@@ -1,16 +1,16 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { FiMinus } from 'react-icons/fi';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
 import ReactDatePicker from 'react-datepicker';
-import { format, formatISO, parseISO } from 'date-fns';
+import { formatISO, format, parseISO } from 'date-fns';
 
 import {
   LOCAL_STORAGE_KEY,
   WORKOUT_TYPES,
 } from '../../constants/LogsConstants';
+import { WorkoutLog } from '../../types/WorkoutTypes';
 import {
   Container,
   ContainerForm,
@@ -19,13 +19,7 @@ import {
   ResultContainer,
   EmptyMessage,
 } from './styles';
-
-interface WorkoutLog {
-  id?: string;
-  timeSpend: number;
-  type: string;
-  day: Date | string;
-}
+import TableLine from '../../components/TableLine';
 
 // Validation schema
 const LogSchema = yup.object().shape({
@@ -66,11 +60,15 @@ const Dashboard: React.FC = () => {
 
   const onAddLog = useCallback(
     (data: WorkoutLog) => {
+      const day = formatISO(data.day as Date);
+      const dayFormatted = format(parseISO(day), 'MM/dd/yyyy');
+
       setLogs(prevLogs => [
         ...prevLogs,
         {
           ...data,
-          day: formatISO(data.day as Date),
+          day,
+          dayFormatted,
           id: uuidv4(),
         },
       ]);
@@ -117,7 +115,7 @@ const Dashboard: React.FC = () => {
               placeholder="Time spend"
               ref={register}
             />
-            {errors.timeSpend && <p>{errors.timeSpend.message}</p>}
+            {errors.timeSpend && <p role="alert">{errors.timeSpend.message}</p>}
           </div>
           <div>
             <select data-testid="type" name="type" ref={register}>
@@ -128,7 +126,7 @@ const Dashboard: React.FC = () => {
                 </option>
               ))}
             </select>
-            {errors.type && <p>{errors.type.message}</p>}
+            {errors.type && <p role="alert">{errors.type.message}</p>}
           </div>
           <div>
             <Controller
@@ -144,7 +142,7 @@ const Dashboard: React.FC = () => {
                 />
               )}
             />
-            {errors.day && <p>{errors.day.message}</p>}
+            {errors.day && <p role="alert">{errors.day.message}</p>}
           </div>
           <button type="submit">Add</button>
         </Form>
@@ -155,27 +153,13 @@ const Dashboard: React.FC = () => {
             <tr>
               <th>Time</th>
               <th>Type</th>
-              <th>Data</th>
+              <th>Date</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {logs.map(log => (
-              <tr key={log.id}>
-                <td>{log.timeSpend}h</td>
-                <td>{log.type}</td>
-                <td>{format(parseISO(log.day.toString()), 'MM/dd/yyyy')}</td>
-                <td width="25">
-                  <button
-                    data-testid="delete"
-                    className="delete"
-                    onClick={() => handleDeleteLog(log)}
-                    type="button"
-                  >
-                    <FiMinus />
-                  </button>
-                </td>
-              </tr>
+              <TableLine key={log.id} item={log} onDelete={handleDeleteLog} />
             ))}
           </tbody>
         </ContainerGrid>
