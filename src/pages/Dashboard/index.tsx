@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
       ) : (
         <EmptyMessage>
           <h3>Oooh :(</h3>
-          <span>You don´t have any logs registred.</span>
+          <span>You don`t have any logs registered yet.</span>
         </EmptyMessage>
       )}
 
