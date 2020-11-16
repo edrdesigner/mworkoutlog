@@ -30,7 +30,7 @@ const LogSchema = yup.object().shape({
     .required('Is required')
     .max(8, 'Can´t be greater than 8'),
   type: yup.string().required('Is required'),
-  day: yup.date().typeError('Must be a valid date').required('Is requerid'),
+  day: yup.date().typeError('Must be a valid date').required('Is required'),
 });
 
 /**
@@ -87,8 +87,8 @@ const Dashboard: React.FC = () => {
 
   const totalHours = useMemo(() => {
     if (logs.length > 0) {
-      return logs.reduce((acumulador, log) => {
-        const total = acumulador + log.timeSpend;
+      return logs.reduce((accumulator, log) => {
+        const total = accumulator + log.timeSpend;
         return total;
       }, 0);
     }
@@ -172,7 +172,7 @@ const Dashboard: React.FC = () => {
 
       {totalHours > 0 && (
         <ResultContainer>
-          <h3>{`${totalHours} hours of exercicies`}</h3>
+          <h3>{`${totalHours} hours of exercises`}</h3>
         </ResultContainer>
       )}
     </Container>
